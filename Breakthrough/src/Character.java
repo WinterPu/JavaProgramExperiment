@@ -52,6 +52,21 @@ public class Character {
 		characterImageView.setImage(characterFrame.getFrameImage(0));
 	}
 	
+	public int[] randomDurations(int num){
+		return new int[num];
+	}
+	//Random
+	public Character(String frameName,int totalFrame){
+		characterFrame = new BaseFrame(frameName,totalFrame,randomDurations(totalFrame));
+		
+		currentFrameNum =0;
+		alive = true;
+		hp = 1;
+		characterImageView.xProperty().set(getCharacterX());
+		characterImageView.yProperty().set(getCharacterY());
+		characterImageView.setImage(characterFrame.getFrameImage(0));
+	}
+	
 	public Image getCurrFrame(){
 		return characterFrame.getFrameImage(currentFrameNum);
 	}
@@ -167,7 +182,7 @@ public class Character {
 		return boundary;
 	}
 
-	public void SetBoundary(double vLeft, double vRight, double vTop, double vBottom) {
+	public void setBoundary(double vLeft, double vRight, double vTop, double vBottom) {
 		boundary.setBoundary(vLeft, vRight, vTop, vBottom);
 	}
 	// Hp
