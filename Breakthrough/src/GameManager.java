@@ -31,19 +31,16 @@ public class GameManager extends Application {
 	ArrayList<BCBullet> bullets = new ArrayList<BCBullet>();
 	ArrayList<BCFlame> flames = new ArrayList<BCFlame>();
 	ArrayList<BCBomb> bombs = new ArrayList<BCBomb>();
-	ArrayList<BCHeart> hearts = new ArrayList<BCHeart>();
+
 
 	SoundManager soundManager = new SoundManager();
-
+	HUDManager hudManager = new HUDManager(this);
+	
 	long lastTime = 0, currentTime = 0, elapsedTime = 0;
 	double acceleration = 0.0;
 
 	GameStatus gameStatus;
 	
-	
-	
-	Button btnRestart;
-	boolean flagLoseShow = false;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -61,8 +58,8 @@ public class GameManager extends Application {
 		timer.start();
 	}
 
-	private void initGame() {
-		flagLoseShow = false;
+	public void initGame() {
+		hudManager.initHUD();
 		acceleration = BASE_SPEED * 2.0;
 		gameStatus = GameStatus.PLAYING;
 		initCharacters();
@@ -135,9 +132,7 @@ public class GameManager extends Application {
 		for (BCBullet bullet : bullets) {
 			bullet.update(elapsedTime);
 		}
-		for (BCHeart heart : hearts) {
-			heart.update(elapsedTime);
-		}
+
 		for (BCFlame flame : flames) {
 			if (flame.currentFrameNum >= 0)
 				flame.update(elapsedTime);
@@ -146,15 +141,14 @@ public class GameManager extends Application {
 		for (BCBomb bomb : bombs) {
 			bomb.update(elapsedTime);
 		}
+		hudManager.updateHUD(elapsedTime);
 	}
 
 	private void gameplay(long elapsedTime) {
 
 		alienAttack();
 		generateRandomBonus();
-		showShipHp();
-		
-		
+		hudManager.showShipHp();
 		
 		checkGameStatus();
 
@@ -169,58 +163,12 @@ public class GameManager extends Application {
 
 	
 		if(gameStatus == GameStatus.LOSE){
-			
-			
-			if(!flagLoseShow)
-			{
-				flagLoseShow = true;
-				btnRestart = new Button("Restart Game");
-				btnRestart.setScaleX(2);
-				btnRestart.setScaleY(2);
-				btnRestart.setLayoutX(background.getWidth() / 2.0 - btnRestart.getWidth() / 2.0);
-				btnRestart.setLayoutY(background.getHeight() / 2.0 - btnRestart.getHeight() / 2.0);
-				pane.getChildren().add(btnRestart);
-				btnRestart.setOnMouseClicked((e) -> {
-					initGame();
-					pane.requestFocus();
-				});
-			}
+			hudManager.showLoseScene();
 		}
 		
 	}
 	
-	private void showShipHp() {
-
-		if (ship == null)
-			return;
-		else {
-
-			// Show Heart
-			double base = 10;
-
-			for (int i = 1; i <= ship.getHP(); i++) {
-				if (i > hearts.size()) {
-					BCHeart heart = new BCHeart(this);
-
-					heart.setPosition((base + heart.getWidth()) * i, base);
-					pane.getChildren().add(heart.getView());
-					hearts.add(heart);
-				}
-			}
-
-			// Remove extra hearts
-			for (int i = hearts.size() - 1; i >= ship.getHP(); i--) {
-				pane.getChildren().remove(hearts.get(i).getView());
-				hearts.remove(i);
-			}
-			if (hearts.size() == 0) {
-				gameStatus = GameStatus.LOSE;
-				return;
-			}
-		}
-
-	}
-
+	
 	private void generateRandomBonus() {
 		if (bonus == null && Math.random() < 0.5)
 			bonus = new BCBonus(this);
