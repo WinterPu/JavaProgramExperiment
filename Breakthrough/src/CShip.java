@@ -83,7 +83,7 @@ public class CShip extends Character  {
 		double x = getCharacterX();
 		double y = getCharacterY();
 		
-		CBullet bullet = new CBullet(gameManager);
+		BCBullet bullet = new BCBullet(gameManager);
 		bullet.position.addListener((ev) -> checkBullet(bullet));
 		bullet.setVY(vy);
 		bullet.setVX(vx);
@@ -94,7 +94,7 @@ public class CShip extends Character  {
 	}
 	
 	
-	private void checkBullet(CBullet bullet) {
+	private void checkBullet(BCBullet bullet) {
 		if (bullet.getCharacterY() <= 0)
 			bullet.alive = false;
 		
@@ -115,7 +115,7 @@ public class CShip extends Character  {
 					
 					
 					bullet.alive = false;
-					CFlame flame = new CFlame(x,y,gameManager);
+					BCFlame flame = new BCFlame(x,y,gameManager);
 					gameManager.flames.add(flame);
 				}
 			}

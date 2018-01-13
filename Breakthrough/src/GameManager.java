@@ -14,27 +14,36 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class GameManager extends Application{
+enum GameStatus {
+	PLAYING, WIN, LOSE
+};
+
+public class GameManager extends Application {
+
+	public static final double BASE_SPEED = 50f;
 
 	CShip ship;
-	CBackground background;
-	CBonus bonus;
+	BCBackground background;
+	BCBonus bonus;
 	AnchorPane pane;
 
 	ArrayList<CAlien> aliens = new ArrayList<CAlien>();
-	ArrayList<CBullet> bullets = new ArrayList<CBullet>();
-	ArrayList<CFlame> flames = new ArrayList<CFlame>();
-	ArrayList<CBomb> bombs = new ArrayList<CBomb>();
-	
-	ArrayList<Character> hearts = new ArrayList<Character>();
+	ArrayList<BCBullet> bullets = new ArrayList<BCBullet>();
+	ArrayList<BCFlame> flames = new ArrayList<BCFlame>();
+	ArrayList<BCBomb> bombs = new ArrayList<BCBomb>();
+	ArrayList<BCHeart> hearts = new ArrayList<BCHeart>();
 
 	SoundManager soundManager = new SoundManager();
 
 	long lastTime = 0, currentTime = 0, elapsedTime = 0;
 	double acceleration = 0.0;
-	public static final double BASE_SPEED = 50f;
 
-	boolean flagGameOver = false;
+	GameStatus gameStatus;
+	
+	
+	
+	Button btnRestart;
+	boolean flagLoseShow = false;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -53,25 +62,22 @@ public class GameManager extends Application{
 	}
 
 	private void initGame() {
+		flagLoseShow = false;
 		acceleration = BASE_SPEED * 2.0;
-		flagGameOver = false;
+		gameStatus = GameStatus.PLAYING;
 		initCharacters();
 	}
 
 	private void initCharacters() {
 		pane.getChildren().clear();
 
-		background = new CBackground(this);
-
+		background = new BCBackground(this);
 		ship = new CShip(this);
-	
 
 		aliens.clear();
 		for (int n = 0; n < 10; n++) {
-			
-			CAlien one = new CAlien(n * 80, Math.random() * 300,this);
-			aliens.add(one);
-			
+			CAlien alien = new CAlien(n * 80, Math.random() * 300, this);
+			aliens.add(alien);
 		}
 
 	}
@@ -89,12 +95,9 @@ public class GameManager extends Application{
 			elapsedTime = currentTime - lastTime;
 
 			updateAll(elapsedTime);
-			
-			
-			ship.setVX(0);
+
 			gameplay(elapsedTime);
-			
-			
+
 			reclaimCharacters();
 
 			lastTime = currentTime;
@@ -114,8 +117,12 @@ public class GameManager extends Application{
 
 		background.update(elapsedTime);
 
-		if (ship != null)
+		if (ship != null) {
 			ship.update(elapsedTime);
+
+			// Clean Remaining V
+			ship.setVX(0);
+		}
 		if (bonus != null)
 			bonus.update(elapsedTime);
 
@@ -125,53 +132,112 @@ public class GameManager extends Application{
 			if (x <= 0 || x + alien.getWidth() >= widthBkg)
 				alien.setVX(-alien.getVX());
 		}
-		for (CBullet bullet : bullets) {
+		for (BCBullet bullet : bullets) {
 			bullet.update(elapsedTime);
 		}
-		for (Character heart : hearts) {
+		for (BCHeart heart : hearts) {
 			heart.update(elapsedTime);
 		}
-		for (CFlame flame : flames) {
+		for (BCFlame flame : flames) {
 			if (flame.currentFrameNum >= 0)
 				flame.update(elapsedTime);
 		}
 
-		for (CBomb bomb : bombs) {
+		for (BCBomb bomb : bombs) {
 			bomb.update(elapsedTime);
 		}
 	}
 
 	private void gameplay(long elapsedTime) {
-		
+
 		alienAttack();
 		generateRandomBonus();
-		if (ship != null && !ship.alive) {
-			flagGameOver = true;
-			timer.stop();
+		showShipHp();
+		
+		
+		
+		checkGameStatus();
+
+	}
+
+	private void checkGameStatus(){
 			
+		
+		if (ship != null && !ship.alive) 
+			gameStatus = GameStatus.LOSE;
+	
+
+	
+		if(gameStatus == GameStatus.LOSE){
+			
+			
+			if(!flagLoseShow)
+			{
+				flagLoseShow = true;
+				btnRestart = new Button("Restart Game");
+				btnRestart.setScaleX(2);
+				btnRestart.setScaleY(2);
+				btnRestart.setLayoutX(background.getWidth() / 2.0 - btnRestart.getWidth() / 2.0);
+				btnRestart.setLayoutY(background.getHeight() / 2.0 - btnRestart.getHeight() / 2.0);
+				pane.getChildren().add(btnRestart);
+				btnRestart.setOnMouseClicked((e) -> {
+					initGame();
+					pane.requestFocus();
+				});
+			}
 		}
+		
 	}
 	
-	
-	private void generateRandomBonus(){
-		if(bonus == null && Math.random() * 100 < 1)
-			bonus = new CBonus(this);
+	private void showShipHp() {
+
+		if (ship == null)
+			return;
+		else {
+
+			// Show Heart
+			double base = 10;
+
+			for (int i = 1; i <= ship.getHP(); i++) {
+				if (i > hearts.size()) {
+					BCHeart heart = new BCHeart(this);
+
+					heart.setPosition((base + heart.getWidth()) * i, base);
+					pane.getChildren().add(heart.getView());
+					hearts.add(heart);
+				}
+			}
+
+			// Remove extra hearts
+			for (int i = hearts.size() - 1; i >= ship.getHP(); i--) {
+				pane.getChildren().remove(hearts.get(i).getView());
+				hearts.remove(i);
+			}
+			if (hearts.size() == 0) {
+				gameStatus = GameStatus.LOSE;
+				return;
+			}
+		}
+
 	}
-	
-	
-	private void alienAttack(){
+
+	private void generateRandomBonus() {
+		if (bonus == null && Math.random() < 0.5)
+			bonus = new BCBonus(this);
+	}
+
+	private void alienAttack() {
 		for (Iterator<CAlien> it = aliens.iterator(); it.hasNext();) {
 			CAlien alien = it.next();
 			if (Math.random() * 100 < 0.2) {
 				alien.throwBomb();
 			}
-		}	
-  }
-	
+		}
+	}
 
 	private void reclaimCharacters() {
-		for (Iterator<CBullet> it = bullets.iterator(); it.hasNext();) {
-			CBullet bullet = it.next();
+		for (Iterator<BCBullet> it = bullets.iterator(); it.hasNext();) {
+			BCBullet bullet = it.next();
 			if (!bullet.alive) {
 				pane.getChildren().remove(bullet.getView());
 				it.remove();
@@ -184,16 +250,16 @@ public class GameManager extends Application{
 				it.remove();
 			}
 		}
-		for (Iterator<CFlame> it = flames.iterator(); it.hasNext();) {
-			CFlame flame = it.next();
+		for (Iterator<BCFlame> it = flames.iterator(); it.hasNext();) {
+			BCFlame flame = it.next();
 			if (!flame.alive) {
 				pane.getChildren().remove(flame.getView());
 				it.remove();
 			}
 		}
 
-		for (Iterator<CBomb> it = bombs.iterator(); it.hasNext();) {
-			CBomb bomb = it.next();
+		for (Iterator<BCBomb> it = bombs.iterator(); it.hasNext();) {
+			BCBomb bomb = it.next();
 			if (!bomb.alive) {
 				pane.getChildren().remove(bomb.getView());
 				it.remove();
@@ -229,4 +295,3 @@ public class GameManager extends Application{
 	}
 
 }
-

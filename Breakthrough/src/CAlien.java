@@ -30,7 +30,7 @@ public class CAlien extends Character{
 	
 	
 	public void throwBomb() {
-		CBomb bomb = new CBomb(gameManager);
+		BCBomb bomb = new BCBomb(gameManager);
 		bomb.position.addListener((e) -> checkBomb(bomb));
 		
 		double x = getCharacterX();
@@ -59,7 +59,7 @@ public class CAlien extends Character{
 				double y = bomb.getCharacterY() + bomb.getHeight() / 2.0;
 				
 				
-				CFlame flame = new CFlame(x,y,gameManager);
+				BCFlame flame = new BCFlame(x,y,gameManager);
 				gameManager.flames.add(flame);
 			}
 		}
