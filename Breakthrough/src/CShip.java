@@ -8,7 +8,7 @@ enum shootType {
 	
     public shootType getNextLevel()
     {
-    	if(this.ordinal() < values.length)
+    	if(this.ordinal() < values.length-1)
     		return values[this.ordinal()+1];
     	else 
     		return values[values.length -1];
