@@ -52,12 +52,15 @@ public class Character {
 		characterImageView.setImage(characterFrame.getFrameImage(0));
 	}
 	
-	public int[] randomDurations(int num){
+	
+	
+	//For Constructor
+	public int[] generateDuration(int num){
 		return new int[num];
 	}
-	//Random
+
 	public Character(String frameName,int totalFrame){
-		characterFrame = new BaseFrame(frameName,totalFrame,randomDurations(totalFrame));
+		characterFrame = new BaseFrame(frameName,totalFrame,generateDuration(totalFrame));
 		
 		currentFrameNum =0;
 		alive = true;

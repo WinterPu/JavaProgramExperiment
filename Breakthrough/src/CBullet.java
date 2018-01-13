@@ -14,5 +14,4 @@ public class CBullet extends Character {
 		gameManager = gm;
 		setBoundary(0, gm.background.getWidth(), 0, gm.background.getHeight());
 	}
-	
 }

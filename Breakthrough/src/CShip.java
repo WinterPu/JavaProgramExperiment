@@ -2,24 +2,33 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 enum shootType {
-	NORMAL, STRENGTHED, MAXPOWER
+	NORMAL, STRENGTHED, MAXPOWER;
+	
+	private static shootType[] values= values();
+	
+    public shootType getNextLevel()
+    {
+    	if(this.ordinal() < values.length)
+    		return values[this.ordinal()+1];
+    	else 
+    		return values[values.length -1];
+    }
 };
+
 
 public class CShip extends Character  {
 
 	private GameManager gameManager;
 	public static final double SHIP_BASE_SPEED = 800f;
+	public static final int LIFE_LIMIT = 5;
 	
-	public CShip(String frameName, int totalFrame, int[] durationTime,GameManager gm) {
-		super(frameName, totalFrame, durationTime);
-		// TODO Auto-generated constructor stub
-		gameManager = gm;
-	}
-
+	shootType shootMode;
+	
 	public CShip(GameManager gm) {
 		super("/Resources/Images/spaceship", 1, new int[] { 10 });
 		// TODO Auto-generated constructor stub
 		gameManager = gm;
+		shootMode = shootType.NORMAL;
 		setBoundary(0, gameManager.background.getWidth(), 0, gameManager.background.getHeight());
 		setVX(SHIP_BASE_SPEED);
 		setPosition(gameManager.background.getHeight() / 2.0, gameManager.background.getHeight() - getHeight());
@@ -27,11 +36,11 @@ public class CShip extends Character  {
 		gm.pane.getChildren().add(getView());
 	}
 
-	public void shoot(shootType mode) {
+	public void shoot() {
 
 		double vy = -GameManager.BASE_SPEED;
 		
-		switch (mode) {
+		switch (shootMode) {
 		case NORMAL: {
 			if (gameManager.bullets.size() < 6) {
 				generateBullet(0, 0, 0, vy * 8);
@@ -86,7 +95,7 @@ public class CShip extends Character  {
 	
 	
 	private void checkBullet(CBullet bullet) {
-		if (bullet.getCharacterY() < 0)
+		if (bullet.getCharacterY() <= 0)
 			bullet.alive = false;
 		
 		else if (gameManager.aliens.size() > 0) {
@@ -106,9 +115,7 @@ public class CShip extends Character  {
 					
 					
 					bullet.alive = false;
-					CFlame flame = new CFlame(gameManager);
-					flame.setPosition(x,y);
-					gameManager.pane.getChildren().add(flame.getView());
+					CFlame flame = new CFlame(x,y,gameManager);
 					gameManager.flames.add(flame);
 				}
 			}

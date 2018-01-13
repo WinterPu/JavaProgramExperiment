@@ -9,12 +9,14 @@ public class CFlame extends Character {
 		gameManager = gm;
 	}
 	
-	public CFlame(GameManager gm) {
+	public CFlame(double x, double y, GameManager gm) {
 		super("Resources/Images/ExplodeFrame", 9,
 				new int[] { 100, 100, 100, 100, 100, 100, 100, 100, 100 });
 		// TODO Auto-generated constructor stub
 		gameManager = gm;
 		setBoundary(0, gm.background.getWidth(), 0, gm.background.getHeight());
+		setPosition(x,y);
+		gm.pane.getChildren().add(getView());
 		
 	}
 	

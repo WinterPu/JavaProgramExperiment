@@ -18,14 +18,14 @@ public class GameManager extends Application{
 
 	CShip ship;
 	CBackground background;
-	Character bonus;
+	CBonus bonus;
 	AnchorPane pane;
 
 	ArrayList<CAlien> aliens = new ArrayList<CAlien>();
 	ArrayList<CBullet> bullets = new ArrayList<CBullet>();
 	ArrayList<CFlame> flames = new ArrayList<CFlame>();
+	ArrayList<CBomb> bombs = new ArrayList<CBomb>();
 	
-	ArrayList<Character> bombs = new ArrayList<Character>();
 	ArrayList<Character> hearts = new ArrayList<Character>();
 
 	SoundManager soundManager = new SoundManager();
@@ -33,10 +33,6 @@ public class GameManager extends Application{
 	long lastTime = 0, currentTime = 0, elapsedTime = 0;
 	double acceleration = 0.0;
 	public static final double BASE_SPEED = 50f;
-
-
-
-	shootType shootMode = shootType.NORMAL;
 
 	boolean flagGameOver = false;
 
@@ -58,7 +54,6 @@ public class GameManager extends Application{
 
 	private void initGame() {
 		acceleration = BASE_SPEED * 2.0;
-		shootMode = shootType.NORMAL;
 		flagGameOver = false;
 		initCharacters();
 	}
@@ -85,23 +80,6 @@ public class GameManager extends Application{
 		launch(args);
 	}
 
-	private void keyStrike(KeyEvent e) {
-		if (ship != null) {
-
-			if (e.getCode() == KeyCode.LEFT && ship.getVX() < 0) {
-				ship.setVX(ship.getVX() - acceleration);
-			} else if (e.getCode() == KeyCode.RIGHT && ship.getVX() > 0) {
-				ship.setVX(ship.getVX() + acceleration);
-			} else if (e.getCode() == KeyCode.LEFT)
-				ship.setVX(-CShip.SHIP_BASE_SPEED);
-			else if (e.getCode() == KeyCode.RIGHT)
-				ship.setVX(CShip.SHIP_BASE_SPEED);
-			if (e.getCode() == KeyCode.SPACE) {
-				ship.shoot(shootMode);
-			}
-		}
-	}
-
 	AnimationTimer timer = new AnimationTimer() {
 
 		@Override
@@ -114,7 +92,7 @@ public class GameManager extends Application{
 			
 			
 			ship.setVX(0);
-			//gameplay(elapsedTime);
+			gameplay(elapsedTime);
 			
 			
 			reclaimCharacters();
@@ -158,48 +136,37 @@ public class GameManager extends Application{
 				flame.update(elapsedTime);
 		}
 
-		for (Character bomb : bombs) {
+		for (CBomb bomb : bombs) {
 			bomb.update(elapsedTime);
 		}
 	}
 
-//	private void gameplay(long elapsedTime) {
-//		
-//		alienAttack();
-//		randomBonus();
-//		
-//		if (ship != null && !ship.alive) {
-//			flagGameOver = true;
-//		
-//		}
-//	}
+	private void gameplay(long elapsedTime) {
+		
+		alienAttack();
+		generateRandomBonus();
+		if (ship != null && !ship.alive) {
+			flagGameOver = true;
+			timer.stop();
+			
+		}
+	}
 	
 	
+	private void generateRandomBonus(){
+		if(bonus == null && Math.random() * 100 < 1)
+			bonus = new CBonus(this);
+	}
 	
-//	private void alienAttack(){
-//		for (Iterator<Character> it = aliens.iterator(); it.hasNext();) {
-//			Character a = it.next();
-//			if (Math.random() * 100 < 0.2) {
-//				throwBomb(a);
-//			}
-//		}
-//		
-//  }
 	
-  
-//	private void throwBomb(Character alien) {
-//		Character bomb = new Character("bomb", 1, new int[] { 10 });
-//		bomb.position.addListener((e) -> checkBomb(bomb));
-//		bomb.setBoundary(0, background.getWidth(), 0, background.getHeight());
-//		bomb.setVX(0);
-//		bomb.setVY(BASE_SPEED * 5);
-//		double x = alien.getCharacterX();
-//		double y = alien.getCharacterY();
-//		bomb.setPos(x + (a.getFrame().getWidth() - bomb.getFrame().getWidth()) / 2, y + a.getFrame().getHeight());
-//		pane.getChildren().add(bomb.getView());
-//		bombs.add(bomb);
-//	}
-//	
+	private void alienAttack(){
+		for (Iterator<CAlien> it = aliens.iterator(); it.hasNext();) {
+			CAlien alien = it.next();
+			if (Math.random() * 100 < 0.2) {
+				alien.throwBomb();
+			}
+		}	
+  }
 	
 
 	private void reclaimCharacters() {
@@ -225,8 +192,8 @@ public class GameManager extends Application{
 			}
 		}
 
-		for (Iterator<Character> it = bombs.iterator(); it.hasNext();) {
-			Character bomb = it.next();
+		for (Iterator<CBomb> it = bombs.iterator(); it.hasNext();) {
+			CBomb bomb = it.next();
 			if (!bomb.alive) {
 				pane.getChildren().remove(bomb.getView());
 				it.remove();
@@ -244,7 +211,22 @@ public class GameManager extends Application{
 		}
 	}
 
+	private void keyStrike(KeyEvent e) {
+		if (ship != null) {
 
-	
+			if (e.getCode() == KeyCode.LEFT && ship.getVX() < 0) {
+				ship.setVX(ship.getVX() - acceleration);
+			} else if (e.getCode() == KeyCode.RIGHT && ship.getVX() > 0) {
+				ship.setVX(ship.getVX() + acceleration);
+			} else if (e.getCode() == KeyCode.LEFT)
+				ship.setVX(-CShip.SHIP_BASE_SPEED);
+			else if (e.getCode() == KeyCode.RIGHT)
+				ship.setVX(CShip.SHIP_BASE_SPEED);
+			if (e.getCode() == KeyCode.SPACE) {
+				ship.shoot();
+			}
+		}
+	}
+
 }
 
