@@ -49,12 +49,13 @@ public class CAlien extends Character{
 			bomb.alive = false;
 		else if (ship != null) {
 			if (ship.collideWith(bomb)) {
-				gameManager.soundManager.Play(SoundManager.SoundType.hitOnShip);
+				gameManager.soundManager.Play(SoundManager.SoundType.HIT_ON_SHIP);
 				ship.setHP(ship.getHP() - 1);
 				if (ship.getHP() <= 0) {
 					ship.alive = false;
-					gameManager.soundManager.Play(SoundManager.SoundType.shipBoom);
-					gameManager.soundManager.Play(SoundManager.SoundType.gameover);
+					ship.setHP(0); //prevent HP to less than 0 otherwise, HUD Manager will meet problems to show hearts
+					gameManager.soundManager.Play(SoundManager.SoundType.SHIP_BOOM);
+					gameManager.soundManager.Play(SoundManager.SoundType.GAMEOVER);
 				}
 				bomb.alive = false;
 				double x = bomb.getCharacterX() + bomb.getWidth() / 2.0;

@@ -1,10 +1,9 @@
-
-enum bonusType {
-	LIFE_BLESSING, ATTACK_ENHANCE,SPEED_ENHANCE, BULLET_SUPPLEMENT
-}
-
 public class BCBonus extends Character {
 
+	public enum bonusType {
+		LIFE_BLESSING, ATTACK_ENHANCE,SPEED_ENHANCE, BULLET_SUPPLEMENT
+	}
+	
 	public static final int BULLET_SUPPLEMENT_VALUE = 10;
 	
 	private GameManager gameManager;
@@ -38,14 +37,12 @@ public class BCBonus extends Character {
 	
 	private void randomBonusType() {
 		double bonusProbability = Math.random() * 10;
-		if (bonusProbability < 10.0 && bonusProbability>=5.5)      //45%
+		if (bonusProbability < 10.0 && bonusProbability>=5.0)      //50%
 			bonusMode = bonusType.BULLET_SUPPLEMENT;
-		else if (bonusProbability < 5.5 && bonusProbability>=2.5)  //30% 
+		else if (bonusProbability < 5.0 && bonusProbability>=2.0)  //30% 
 			bonusMode = bonusType.LIFE_BLESSING;
-		else if (bonusProbability < 2.5 && bonusProbability>=0.5)  //20%
-			bonusMode = bonusType.ATTACK_ENHANCE;
 		else 
-			bonusMode = bonusType.SPEED_ENHANCE;
+			bonusMode = bonusType.ATTACK_ENHANCE;
 	}
 
 	private void checkBonus() {
@@ -60,10 +57,10 @@ public class BCBonus extends Character {
 			
 			if (this.collideWith(ship)) // ship¦Y¨ìbonus
 			{
-			gameManager.soundManager.Play(SoundManager.SoundType.bonus);
+			gameManager.soundManager.Play(SoundManager.SoundType.BONUS);
 			this.alive = false;
 			
-			// Enhace Part
+			// Enhance Part
 			switch(bonusMode){
 			case LIFE_BLESSING:{
 				
@@ -83,16 +80,12 @@ public class BCBonus extends Character {
 				ship.setBulletNum(ship.getBulletNum() +  BULLET_SUPPLEMENT_VALUE);
 				break;
 			  }
-			
-			case SPEED_ENHANCE:{
-				
-				System.out.println("OK!!");
-				ship.setStartSpeed(ship.getStartSpeed() + 20);
-				ship.setAcceleration(ship.getAcceleration() + 5);
+			default:
 				break;
-			  }
 			}
 		}
 	}
   }
+
+	
 }

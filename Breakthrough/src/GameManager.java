@@ -14,11 +14,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-enum GameStatus {
-	PLAYING, WIN, LOSE
-};
-
 public class GameManager extends Application {
+
+	public enum GameStatus {
+		PLAYING, WIN, LOSE
+	};
 
 	public static final double BASE_SPEED = 50f;
 	public static final int ALIEN_INIT_NUM = 10;
@@ -53,8 +53,7 @@ public class GameManager extends Application {
 		pane.setOnKeyPressed(e -> keyStrike(e));
 
 		initGame();
-		soundManager.Play(SoundManager.SoundType.background);
-
+	
 		Scene scene = new Scene(pane, background.getWidth(), background.getHeight());
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -65,7 +64,9 @@ public class GameManager extends Application {
 	}
 
 	public void initGame() {
-
+		soundManager.initSoundManager();
+		soundManager.Play(SoundManager.SoundType.BACKGROUND);
+		
 		timeCurrentWar = System.currentTimeMillis();
 		generateReinforceTimeInterval();
 
@@ -84,13 +85,8 @@ public class GameManager extends Application {
 		spawnEnemy();
 	}
 
-	private void spawnEnemy() {
-		for (int n = 0; n < ALIEN_INIT_NUM; n++) {
-			CAlien alien = new CAlien(n * 80, Math.random() * 300, this);
-			aliens.add(alien);
-		}
-	}
 
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -167,6 +163,8 @@ public class GameManager extends Application {
 			generateRandomBonus();
 		}
 	}
+	
+	
 
 	private void checkGameStatus() {
 
@@ -181,10 +179,19 @@ public class GameManager extends Application {
 
 			if (ship != null && ship.alive)
 				ship.setVX(0);
+			
+			
+			soundManager.stopBGM();
+			if(gameStatus ==GameStatus.WIN)
+			{
+				soundManager.Play(SoundManager.SoundType.WIN);
+			}
+			else if(gameStatus ==GameStatus.LOSE)
+			{
+				soundManager.Play(SoundManager.SoundType.GAMEOVER);
+			}
 		}
 	}
-
-	
 	
 	private void generateRandomBonus() {
 
@@ -210,7 +217,12 @@ public class GameManager extends Application {
 		reinforceTimeInterval = (long) (Math.random() * (MAX_REINFORCE_TIME - MIN_REINFORCE_TIME + 1)
 				+ MIN_REINFORCE_TIME);
 	}
-
+	private void spawnEnemy() {
+		for (int n = 0; n < ALIEN_INIT_NUM; n++) {
+			CAlien alien = new CAlien(n * 80, Math.random() * 300, this);
+			aliens.add(alien);
+		}
+	}
 	private void reinforceEnemy() {
 
 		// if(gameStatus != GameStatus.PLAYING)

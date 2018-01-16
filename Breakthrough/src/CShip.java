@@ -1,32 +1,32 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-enum shootType {
-	NORMAL, STRENGTHED, MAXPOWER;
-
-	private static shootType[] values = values();
-
-	public shootType getNextLevel() {
-		if (this.ordinal() < values.length - 1)
-			return values[this.ordinal() + 1];
-		else
-			return values[values.length - 1];
-	}
-};
-
 public class CShip extends Character {
 
+	public enum shootType {
+		NORMAL, STRENGTHED, MAXPOWER;
+
+		private static shootType[] values = values();
+
+		public shootType getNextLevel() {
+			if (this.ordinal() < values.length - 1)
+				return values[this.ordinal() + 1];
+			else
+				return values[values.length - 1];
+		}
+	};
+
 	private GameManager gameManager;
-	public static final double SHIP_BASE_SPEED = 200f;
+	public static final double SHIP_BASE_SPEED = 100f;
+	
 	// For the 2nd movement pattern
-	public static final double SHIP_BASE_SPEED_NO_ACCELERATION = 800f;
+	//public static final double SHIP_BASE_SPEED_NO_ACCELERATION = 800f;
 
 	public static final int LIFE_LIMIT = 5;
 
 	shootType shootMode;
 
 	private int bulletNum;
-
 	
 	private double startSpeed;
 	private double acceleration;
@@ -38,7 +38,7 @@ public class CShip extends Character {
 		gameManager = gm;
 		shootMode = shootType.NORMAL;
 		
-		acceleration =GameManager.BASE_SPEED ;
+		acceleration =GameManager.BASE_SPEED*2.0 ;
 		startSpeed = SHIP_BASE_SPEED;
 		
 		setBoundary(0, gameManager.background.getWidth(), 0, gameManager.background.getHeight());
@@ -60,7 +60,7 @@ public class CShip extends Character {
 				if (bulletNum >= 1) {
 					bulletNum--;
 					generateBullet(0, 0, 0, vy * 8);
-					gameManager.soundManager.Play(SoundManager.SoundType.shoot);
+					gameManager.soundManager.Play(SoundManager.SoundType.SHOOT);
 				}
 			}
 
@@ -75,7 +75,7 @@ public class CShip extends Character {
 					generateBullet(-5.0, 0, 0, vy * 8);
 
 					generateBullet(8.0, 0, 0, vy * 8);
-					gameManager.soundManager.Play(SoundManager.SoundType.shoot);
+					gameManager.soundManager.Play(SoundManager.SoundType.SHOOT);
 					checkShootMode();
 				}
 			}
@@ -90,7 +90,7 @@ public class CShip extends Character {
 					generateBullet(-5.0, 0, vy * 2, vy * 8);
 					generateBullet(0, 0, 0, vy * 8);
 					generateBullet(5.0, 0, -vy * 2, vy * 8);
-					gameManager.soundManager.Play(SoundManager.SoundType.shoot);
+					gameManager.soundManager.Play(SoundManager.SoundType.SHOOT);
 
 					checkShootMode();
 				}
@@ -142,15 +142,14 @@ public class CShip extends Character {
 				Character alien = it.next();
 				if (alien.collideWith(bullet)) {
 
-					gameManager.soundManager.Play(SoundManager.SoundType.hitOnEnemy);
+					gameManager.soundManager.Play(SoundManager.SoundType.HIT_ON_ENEMY);
 					double x = alien.getCharacterX() + alien.getWidth() / 2.0;
 					double y = alien.getCharacterY() + alien.getHeight() / 2.0;
 
 					alien.setHP(alien.getHP() - 1);
 					if (alien.getHP() <= 0) {
 						alien.alive = false;
-						alien.setHP(0); //prevent HP to less than 0
-						gameManager.soundManager.Play(SoundManager.SoundType.died);
+						gameManager.soundManager.Play(SoundManager.SoundType.DIED);
 					}
 
 					bullet.alive = false;
