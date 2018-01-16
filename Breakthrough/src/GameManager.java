@@ -39,7 +39,7 @@ public class GameManager extends Application {
 	HUDManager hudManager = new HUDManager(this);
 
 	long lastTime = 0, currentTime = 0, elapsedTime = 0;
-	double acceleration = 0.0;
+
 
 	GameStatus gameStatus;
 
@@ -69,7 +69,6 @@ public class GameManager extends Application {
 		timeCurrentWar = System.currentTimeMillis();
 		generateReinforceTimeInterval();
 
-		acceleration = BASE_SPEED * 2.0;
 		gameStatus = GameStatus.PLAYING;
 		initCharacters();
 		hudManager.initHUD();
@@ -275,15 +274,15 @@ public class GameManager extends Application {
 
 			// this is with acceleration version
 			if (e.getCode() == KeyCode.LEFT && ship.getVX() < 0) {
-				ship.setVX(ship.getVX() - acceleration);
+				ship.setVX(ship.getVX() - ship.getAcceleration());
 			} else if (e.getCode() == KeyCode.RIGHT && ship.getVX() > 0) {
-				ship.setVX(ship.getVX() + acceleration);
+				ship.setVX(ship.getVX() + ship.getAcceleration());
 			} else if (e.getCode() == KeyCode.LEFT)
-				ship.setVX(-CShip.SHIP_BASE_SPEED);
+				ship.setVX(-ship.getStartSpeed());
 			else if (e.getCode() == KeyCode.RIGHT)
-				ship.setVX(CShip.SHIP_BASE_SPEED);
+				ship.setVX(ship.getStartSpeed());
 
-			// if you want to enable this way of movement
+			// if you want to enable this pattern of movement
 			// please uncomment [ship.setVX(0)] in[updateAll] Method
 			// And Change The Initial Speed of The ship
 

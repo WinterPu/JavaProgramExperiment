@@ -1,6 +1,6 @@
 
 enum bonusType {
-	LIFE_BLESSING, ATTACK_ENHANCE, BULLET_SUPPLEMENT
+	LIFE_BLESSING, ATTACK_ENHANCE,SPEED_ENHANCE, BULLET_SUPPLEMENT
 }
 
 public class BCBonus extends Character {
@@ -35,14 +35,17 @@ public class BCBonus extends Character {
 		gm.pane.getChildren().add(getView());
 	}
 
+	
 	private void randomBonusType() {
 		double bonusProbability = Math.random() * 10;
-		if (bonusProbability < 10.0 && bonusProbability>=5.0)
+		if (bonusProbability < 10.0 && bonusProbability>=5.5)      //45%
 			bonusMode = bonusType.BULLET_SUPPLEMENT;
-		else if (bonusProbability < 5.0 && bonusProbability>=2.0)
+		else if (bonusProbability < 5.5 && bonusProbability>=2.5)  //30% 
 			bonusMode = bonusType.LIFE_BLESSING;
-		else
+		else if (bonusProbability < 2.5 && bonusProbability>=0.5)  //20%
 			bonusMode = bonusType.ATTACK_ENHANCE;
+		else 
+			bonusMode = bonusType.SPEED_ENHANCE;
 	}
 
 	private void checkBonus() {
@@ -78,6 +81,14 @@ public class BCBonus extends Character {
 			
 			case BULLET_SUPPLEMENT:{
 				ship.setBulletNum(ship.getBulletNum() +  BULLET_SUPPLEMENT_VALUE);
+				break;
+			  }
+			
+			case SPEED_ENHANCE:{
+				
+				System.out.println("OK!!");
+				ship.setStartSpeed(ship.getStartSpeed() + 20);
+				ship.setAcceleration(ship.getAcceleration() + 5);
 				break;
 			  }
 			}

@@ -17,7 +17,8 @@ enum shootType {
 public class CShip extends Character {
 
 	private GameManager gameManager;
-	public static final double SHIP_BASE_SPEED = 100f;
+	public static final double SHIP_BASE_SPEED = 200f;
+	// For the 2nd movement pattern
 	public static final double SHIP_BASE_SPEED_NO_ACCELERATION = 800f;
 
 	public static final int LIFE_LIMIT = 5;
@@ -26,25 +27,26 @@ public class CShip extends Character {
 
 	private int bulletNum;
 
+	
+	private double startSpeed;
+	private double acceleration;
+	
+	
 	public CShip(GameManager gm) {
 		super("/Resources/Images/spaceship", 1, new int[] { 10 });
 		// TODO Auto-generated constructor stub
 		gameManager = gm;
 		shootMode = shootType.NORMAL;
+		
+		acceleration =GameManager.BASE_SPEED ;
+		startSpeed = SHIP_BASE_SPEED;
+		
 		setBoundary(0, gameManager.background.getWidth(), 0, gameManager.background.getHeight());
 		setVX(0);
 		setPosition(gameManager.background.getHeight() / 2.0, gameManager.background.getHeight() - getHeight());
 		setHP(5);
 		bulletNum = CAlien.ALIEN_INIT_LIFE * GameManager.ALIEN_INIT_NUM + 50;
 		gm.pane.getChildren().add(getView());
-	}
-
-	public int getBulletNum() {
-		return bulletNum;
-	}
-
-	public void setBulletNum(int value) {
-		bulletNum = value;
 	}
 
 	public void shoot() {
@@ -159,4 +161,31 @@ public class CShip extends Character {
 		}
 	}
 
+	
+	//Region -- Basic Methods
+	public int getBulletNum() {
+		return bulletNum;
+	}
+
+	public void setBulletNum(int value) {
+		bulletNum = value;
+	}
+
+	public void setStartSpeed(double value){
+		startSpeed = value;
+	}
+	public double getStartSpeed(){
+		return startSpeed;
+	}
+	
+	public void setAcceleration(double value){
+		acceleration = value;
+	}
+	public double getAcceleration(){
+		return acceleration;
+	}
+	
+	//Region  -- Basic Methods End
+	
+	
 }
