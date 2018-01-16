@@ -23,7 +23,7 @@ public class BCBonus extends Character {
 	}
 
 	public BCBonus(GameManager gm) {
-		super("Resources/Images/bonus", 12);
+		super("Resources/Images/Bonus", 12);
 		// TODO Auto-generated constructor stub
 		gameManager = gm;
 		setBoundary(0, gm.background.getWidth(), 0, gm.background.getHeight());
