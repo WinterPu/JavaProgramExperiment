@@ -2,6 +2,8 @@
 public class CAlien extends Character{
 
 	public static final double ALIEN_BASE_SPEED = 50f;
+	public static final int ALIEN_INIT_LIFE  = 5;
+	
 	private GameManager gameManager;
 	
 	//Random Duration Method
@@ -22,7 +24,7 @@ public class CAlien extends Character{
 		setBoundary(0, gm.background.getWidth(), 0, gm.background.getHeight());
 		setVX(ALIEN_BASE_SPEED * (Math.random() + 1));
 		setPosition(x,y);
-		setHP(5);
+		setHP(ALIEN_INIT_LIFE);
 		gm.pane.getChildren().add(getView());
 	
 	}

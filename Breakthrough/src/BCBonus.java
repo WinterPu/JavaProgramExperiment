@@ -1,10 +1,12 @@
 
 enum bonusType {
-	LIFE_BLESSING, ATTACK_ENHANCE
+	LIFE_BLESSING, ATTACK_ENHANCE, BULLET_SUPPLEMENT
 }
 
 public class BCBonus extends Character {
 
+	public static final int BULLET_SUPPLEMENT_VALUE = 10;
+	
 	private GameManager gameManager;
 
 	bonusType bonusMode;
@@ -34,7 +36,10 @@ public class BCBonus extends Character {
 	}
 
 	private void randomBonusType() {
-		if (Math.random() * 10 < 5)
+		double bonusProbability = Math.random() * 10;
+		if (bonusProbability < 10.0 && bonusProbability>=5.0)
+			bonusMode = bonusType.BULLET_SUPPLEMENT;
+		else if (bonusProbability < 5.0 && bonusProbability>=2.0)
 			bonusMode = bonusType.LIFE_BLESSING;
 		else
 			bonusMode = bonusType.ATTACK_ENHANCE;
@@ -69,9 +74,13 @@ public class BCBonus extends Character {
 				ship.shootMode = ship.shootMode.getNextLevel();
 				break;
 			  }
-			}
 			
-
+			
+			case BULLET_SUPPLEMENT:{
+				ship.setBulletNum(ship.getBulletNum() +  BULLET_SUPPLEMENT_VALUE);
+				break;
+			  }
+			}
 		}
 	}
   }

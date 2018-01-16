@@ -21,6 +21,9 @@ enum GameStatus {
 public class GameManager extends Application {
 
 	public static final double BASE_SPEED = 50f;
+	public static final int ALIEN_INIT_NUM = 10;
+	public static final double MIN_REINFORCE_TIME = 30000;
+	public static final double MAX_REINFORCE_TIME = 60000;
 
 	CShip ship;
 	BCBackground background;
@@ -32,20 +35,23 @@ public class GameManager extends Application {
 	ArrayList<BCFlame> flames = new ArrayList<BCFlame>();
 	ArrayList<BCBomb> bombs = new ArrayList<BCBomb>();
 
-
 	SoundManager soundManager = new SoundManager();
 	HUDManager hudManager = new HUDManager(this);
-	
+
 	long lastTime = 0, currentTime = 0, elapsedTime = 0;
 	double acceleration = 0.0;
 
 	GameStatus gameStatus;
-	
+
+	// For Reinforce Method
+	long timeCurrentWar;
+	long reinforceTimeInterval;
 
 	@Override
 	public void start(Stage primaryStage) {
 		pane = new AnchorPane();
 		pane.setOnKeyPressed(e -> keyStrike(e));
+
 		initGame();
 		soundManager.Play(SoundManager.SoundType.background);
 
@@ -59,10 +65,14 @@ public class GameManager extends Application {
 	}
 
 	public void initGame() {
-		hudManager.initHUD();
+
+		timeCurrentWar = System.currentTimeMillis();
+		generateReinforceTimeInterval();
+
 		acceleration = BASE_SPEED * 2.0;
 		gameStatus = GameStatus.PLAYING;
 		initCharacters();
+		hudManager.initHUD();
 	}
 
 	private void initCharacters() {
@@ -72,11 +82,14 @@ public class GameManager extends Application {
 		ship = new CShip(this);
 
 		aliens.clear();
-		for (int n = 0; n < 10; n++) {
+		spawnEnemy();
+	}
+
+	private void spawnEnemy() {
+		for (int n = 0; n < ALIEN_INIT_NUM; n++) {
 			CAlien alien = new CAlien(n * 80, Math.random() * 300, this);
 			aliens.add(alien);
 		}
-
 	}
 
 	public static void main(String[] args) {
@@ -118,7 +131,7 @@ public class GameManager extends Application {
 			ship.update(elapsedTime);
 
 			// Clean Remaining V
-			ship.setVX(0);
+			// ship.setVX(0);
 		}
 		if (bonus != null)
 			bonus.update(elapsedTime);
@@ -141,37 +154,47 @@ public class GameManager extends Application {
 		for (BCBomb bomb : bombs) {
 			bomb.update(elapsedTime);
 		}
+
 		hudManager.updateHUD(elapsedTime);
 	}
 
 	private void gameplay(long elapsedTime) {
 
-		alienAttack();
-		generateRandomBonus();
-		hudManager.showShipHp();
-		
 		checkGameStatus();
 
-	}
-
-	private void checkGameStatus(){
-			
-		
-		if (ship != null && !ship.alive) 
-			gameStatus = GameStatus.LOSE;
-	
-
-	
-		if(gameStatus == GameStatus.LOSE){
-			hudManager.showLoseScene();
+		if (gameStatus == GameStatus.PLAYING) {
+			alienAttack();
+			reinforceEnemy();
+			generateRandomBonus();
 		}
-		
 	}
+
+	private void checkGameStatus() {
+
+		if (ship != null && !ship.alive)
+			gameStatus = GameStatus.LOSE;
+
+		if (aliens.size() == 0)
+			gameStatus = GameStatus.WIN;
+
+		if (gameStatus != GameStatus.PLAYING) {
+			hudManager.showGameEndScene();
+
+			if (ship != null && ship.alive)
+				ship.setVX(0);
+		}
+	}
+
 	
 	
 	private void generateRandomBonus() {
+
+		// if(gameStatus == GameStatus.PLAYING)
+		// {
 		if (bonus == null && Math.random() < 0.5)
+
 			bonus = new BCBonus(this);
+		// }
 	}
 
 	private void alienAttack() {
@@ -181,6 +204,28 @@ public class GameManager extends Application {
 				alien.throwBomb();
 			}
 		}
+	}
+
+	private void generateReinforceTimeInterval() {
+
+		reinforceTimeInterval = (long) (Math.random() * (MAX_REINFORCE_TIME - MIN_REINFORCE_TIME + 1)
+				+ MIN_REINFORCE_TIME);
+	}
+
+	private void reinforceEnemy() {
+
+		// if(gameStatus != GameStatus.PLAYING)
+		// return;
+
+		long elapsedCurrentWarTime = currentTime - timeCurrentWar;
+		//System.out.println(elapsedCurrentWarTime);
+		//System.out.println(reinforceTimeInterval);
+		if (elapsedCurrentWarTime >= reinforceTimeInterval) {
+			timeCurrentWar = currentTime;
+			generateReinforceTimeInterval();
+			spawnEnemy();
+		}
+
 	}
 
 	private void reclaimCharacters() {
@@ -226,8 +271,9 @@ public class GameManager extends Application {
 	}
 
 	private void keyStrike(KeyEvent e) {
-		if (ship != null) {
+		if (ship != null && gameStatus == GameStatus.PLAYING) {
 
+			// this is with acceleration version
 			if (e.getCode() == KeyCode.LEFT && ship.getVX() < 0) {
 				ship.setVX(ship.getVX() - acceleration);
 			} else if (e.getCode() == KeyCode.RIGHT && ship.getVX() > 0) {
@@ -236,7 +282,21 @@ public class GameManager extends Application {
 				ship.setVX(-CShip.SHIP_BASE_SPEED);
 			else if (e.getCode() == KeyCode.RIGHT)
 				ship.setVX(CShip.SHIP_BASE_SPEED);
-			if (e.getCode() == KeyCode.SPACE) {
+
+			// if you want to enable this way of movement
+			// please uncomment [ship.setVX(0)] in[updateAll] Method
+			// And Change The Initial Speed of The ship
+
+			// if (e.getCode() == KeyCode.LEFT && ship.getVX() < 0) {
+			// ship.setVX(ship.getVX() - acceleration);
+			// } else if (e.getCode() == KeyCode.RIGHT && ship.getVX() > 0) {
+			// ship.setVX(ship.getVX() + acceleration);
+			// } else if (e.getCode() == KeyCode.LEFT)
+			// ship.setVX(-CShip.SHIP_BASE_SPEED_NO_ACCELERATION);
+			// else if (e.getCode() == KeyCode.RIGHT)
+			// ship.setVX(CShip.SHIP_BASE_SPEED_NO_ACCELERATION);
+			//
+			if (e.getCode() == KeyCode.SPACE && ship.getBulletNum() > 0) {
 				ship.shoot();
 			}
 		}
