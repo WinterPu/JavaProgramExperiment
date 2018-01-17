@@ -49,6 +49,8 @@ public class GameManager extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		
+		primaryStage.setTitle("Breakthrough");
 		pane = new AnchorPane();
 		pane.setOnKeyPressed(e -> keyStrike(e));
 
@@ -58,7 +60,7 @@ public class GameManager extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		pane.requestFocus();
-
+		
 		lastTime = System.currentTimeMillis();
 		timer.start();
 	}
