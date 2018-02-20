@@ -1,9 +1,12 @@
 # Breakthrough -- 绝境突围
 
-## Control：
-**Movement：** Left ， Right
+## Game Goal:
+live to the end!
 
-**Shoot:**     Space
+## Control：
+**Movement:** Left, Right
+
+**Shoot:** Space
 
 ## Introduction:
 **Enemy's HP** is 5
